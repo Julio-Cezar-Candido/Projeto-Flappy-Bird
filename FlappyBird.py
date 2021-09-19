@@ -163,3 +163,31 @@ class Chao:
 
 def desenhar_tela(tela, passaros, canos, chao, pontos):
     tela.blit(img_fundo, (0, 0))
+    for passaro in passaros:
+        passaro.desenhar(tela)
+    for cano in canos:
+        cano.desenhar(tela)
+
+    texto = fonte_pontos.render(f'Pontuação: {pontos}', 1, (255, 255, 255))
+    tela.blit(texto, (tela_largura - 10 - texto.get_width(), 10))
+    chao.desenhar(tela)
+    pg.display.update()
+
+
+def main():
+    passaros = [Passaro(230, 350)]
+    chao = Chao(730)
+    canos = [Cano(700)]
+    tela = pg.display.set_mode((tela_largura, tela_altura))
+    pontos = 0
+    relogio = pg.time.Clock()
+
+    while True:
+        relogio.tick(45)
+        for evento in pg.event.get():
+            if evento.type == pg.QUIT:
+                pg.quit()
+                quit()
+                break
+
+        desenhar_tela(tela, passaros, canos, chao, pontos)
