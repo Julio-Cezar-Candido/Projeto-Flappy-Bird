@@ -91,7 +91,7 @@ class Passaro:
         tela.blit(imagem_rotacionada, retangulo.topleft)
 
     def get_mask(self):
-        pg.mask.from_surface(self.imagem)
+        return pg.mask.from_surface(self.imagem)
 
 
 class Cano:
@@ -152,9 +152,9 @@ class Chao:
         self.x2 -= self.velocidade
 
         if self.x1 + self.largura < 0:
-            self.x1 = self.largura
+            self.x1 = self.x2 + self.largura
         if self.x2 + self.largura < 0:
-            self.x2 = self.x2 + self.largura
+            self.x2 = self.x1 + self.largura
 
     def desenhar(self, tela):
         tela.blit(self.imagem, (self.x1, self.y))
@@ -189,5 +189,40 @@ def main():
                 pg.quit()
                 quit()
                 break
+            if evento.type == pg.KEYDOWN:
+                if evento.key == pg.K_SPACE:
+                    for passaro in passaros:
+                        passaro.pular()
+
+        # mover as coisas:
+        for passaro in passaros:
+            passaro.mover()
+        chao.mover()
+
+        adicionar_cano = False
+        remover_canos = []
+        for cano in canos:
+            for i, passaro in enumerate(passaros):
+                if cano.colidir(passaro):
+                    passaros.pop(i)
+                if not cano.passou and passaro.x > cano.x:
+                    cano.passou = True
+                    adicionar_cano = True
+            cano.mover()
+            if cano.x + cano.cano_topo.get_width() < 0:
+                remover_canos.append(cano)
+
+        if adicionar_cano:
+            pontos += 1
+            canos.append(Cano(600))
+        for cano in remover_canos:
+            canos.remove(cano)
+
+        for i, passaro in enumerate(passaros):
+            if (passaro.y + passaro.imagem.get_height()) > chao.y or passaro.y < 0:
+                passaros.pop(i)
 
         desenhar_tela(tela, passaros, canos, chao, pontos)
+
+if __name__ == '__main__':
+    main()
